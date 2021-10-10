@@ -12,12 +12,18 @@
       <v-stepper-content step="1">
         <v-card class="mb-4 mb-md-6" height="200px">
           <v-container fluid fill-height class="d-flex justify-center">
-            <v-btn color="primary" v-if="!address">
+            <v-btn color="primary" v-if="!state.address">
               Conecta tu monedero
             </v-btn>
             <template v-else>
-              <v-card-title>{{ address }}</v-card-title>
-              <v-card-subtitle>{{ network }}</v-card-subtitle>
+              <div>
+                <v-card-title class="text-center"
+                  >Address: {{ state.address }}</v-card-title
+                >
+                <v-card-subtitle class="text-center"
+                  >Network: {{ state.network }}</v-card-subtitle
+                >
+              </div>
             </template>
           </v-container>
         </v-card>
@@ -26,7 +32,7 @@
             color="primary"
             @click="step++"
             class="mr-2"
-            :disabled="!address"
+            :disabled="!state.address"
           >
             <span class="d-none d-sm-inline mr-2">Siguiente</span>
             <v-icon>
@@ -43,7 +49,7 @@
       <v-stepper-content step="2">
         <v-card class="mb-4 mb-md-6" height="200px">
           <v-container fluid fill-height class="d-flex justify-center">
-            <v-form ref="form" lazy-validation>
+            <v-form ref="form" v-model="valid" lazy-validation>
               <v-text-field
                 v-model="clave"
                 :counter="18"
@@ -68,7 +74,12 @@
             </v-icon>
             <span class="d-none d-sm-inline ml-2">Anterior</span>
           </v-btn>
-          <v-btn color="primary" @click="step++" class="mr-2">
+          <v-btn
+            color="primary"
+            @click="step++"
+            class="mr-2"
+            :disabled="!valid"
+          >
             <span class="d-none d-sm-inline mr-2">Siguiente</span>
             <v-icon>
               mdi-chevron-right
@@ -135,11 +146,13 @@
 
 <script>
 import TheAppLayout from "@/components/TheAppLayout.vue";
+import { mapGetters } from "vuex";
 export default {
   name: "Votar",
   data() {
     return {
       step: 1,
+      valid: true,
       clave: "",
       claveRules: [
         (v) => !!v || "La clave es un campo obligatorio",
@@ -148,24 +161,12 @@ export default {
       ],
     };
   },
-  props: {
-    address: {
-      type: String,
-      required: false,
-      default: () => {
-        "";
-      },
-    },
-    network: {
-      type: String,
-      required: false,
-      default: () => {
-        "Main net";
-      },
-    },
-  },
   components: {
     TheAppLayout,
   },
+  computed: {
+    ...mapGetters({ state: "getState" }),
+  },
+  methods: {},
 };
 </script>
