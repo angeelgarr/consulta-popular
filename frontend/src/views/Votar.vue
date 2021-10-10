@@ -57,7 +57,6 @@
                 label="Clave de elector"
                 required
                 outlined
-                clearable
                 color="primary"
               ></v-text-field>
             </v-form>
@@ -156,8 +155,11 @@ export default {
       clave: "",
       claveRules: [
         (v) => !!v || "La clave es un campo obligatorio",
-        (v) => (v && v.length <= 18) || "La clave debe ser de 18 caracteres",
-        // Regex here
+        (v) => (v && v.length === 18) || "La clave debe ser de 18 caracteres",
+        (v) =>
+          v.match(
+            /[BCDFGHJKLMNPQRSTVWXYZ]{6}[0-9]{2}[0-1]{1}[0-9]{1}[0-3]{1}[0-9]{1}[0-3]{1}[0-9]{1}[HM]{1}[0-9]{3}/g
+          ) || "Clave inválida",
       ],
     };
   },
