@@ -42,13 +42,29 @@ Clonar el repositorio y corrern `npm install` o `yarn` en la carpeta donde fue c
 
 ## Comandos de Hardhat
 
+Desplegar contrato localmente:
+Iniciar un nodo local
+
+```shell
+npx hardhat node
+```
+
+```shell
+npx hardhat run --network localhost scripts/deploy.js
+```
+
+Desplegar contrato en la red Rinkeby
+
+```shell
+npx hardhat run --network rinkeby scripts/deploy.js
+```
+
 ```shell
 npx hardhat accounts
 npx hardhat compile
 npx hardhat clean
 npx hardhat test
 npx hardhat node
-node scripts/sample-script.js
 npx hardhat help
 ```
 
