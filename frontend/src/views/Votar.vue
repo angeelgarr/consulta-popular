@@ -58,6 +58,8 @@
                 required
                 outlined
                 color="primary"
+                solo
+                @input="(val) => (clave = clave.toUpperCase())"
               ></v-text-field>
             </v-form>
           </v-container>
@@ -75,7 +77,7 @@
           </v-btn>
           <v-btn
             color="primary"
-            @click="step++"
+            @click="preVote"
             class="mr-2"
             :disabled="!valid"
           >
@@ -109,14 +111,14 @@
           <div
             class="d-flex flex-column flex-sm-row justify-sm-space-around my-6"
           >
-            <v-btn color="accent" class="mb-6 mb-sm-0" @click="$emit(1)">
-              Sí, que continúe
-            </v-btn>
-            <v-btn color="accent" class="mb-6 mb-sm-0" @click="$emit(2)">
-              No, que renuncie
-            </v-btn>
-            <v-btn color="accent" @click="$emit(3)">
-              Anular mi voto
+            <v-btn
+              color="accent"
+              class="mb-6 mb-sm-0"
+              v-for="order in randomOrder"
+              :key="`option-${order}`"
+              @click="vote(options[order].id)"
+            >
+              {{ options[order].description }}
             </v-btn>
           </div>
         </v-card>
@@ -159,8 +161,23 @@ export default {
         (v) =>
           v.match(
             /[BCDFGHJKLMNPQRSTVWXYZ]{6}[0-9]{2}[0-1]{1}[0-9]{1}[0-3]{1}[0-9]{1}[0-3]{1}[0-9]{1}[HM]{1}[0-9]{3}/g
-          ) || "Clave inválida",
+          ) !== null || "Clave inválida",
       ],
+      options: [
+        {
+          description: "Sí, que continúe",
+          id: 1,
+        },
+        {
+          description: "No, que renuncie",
+          id: 2,
+        },
+        {
+          description: "Anular mi voto",
+          id: 3,
+        },
+      ],
+      randomOrder: [0, 1, 2],
     };
   },
   components: {
@@ -169,6 +186,23 @@ export default {
   computed: {
     ...mapGetters({ state: "getState" }),
   },
-  methods: {},
+  methods: {
+    preVote() {
+      // randomize voting option order
+      this.randomOrder = this.shuffle(this.randomOrder);
+      this.step++;
+    },
+    vote(id) {
+      console.log(id);
+    },
+    shuffle([...arr]) {
+      let m = arr.length;
+      while (m) {
+        const i = Math.floor(Math.random() * m--);
+        [arr[m], arr[i]] = [arr[i], arr[m]];
+      }
+      return arr;
+    },
+  },
 };
 </script>
