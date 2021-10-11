@@ -11,6 +11,15 @@ const routes = [
     component: Votar,
   },
   {
+    path: "/resultados",
+    name: "Resultados",
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "resultados" */ "../views/Resultados.vue"),
+  },
+  {
     path: "/acerca-de",
     name: "Acerca de",
     // route level code-splitting
