@@ -14,7 +14,7 @@
         Total de votos registrados:
         {{ totalVotes }}
       </h3>
-      <div class="primary pa-2 pa-sm-4 white--text rounded">
+      <div class="primary px-2 px-sm-4  py-6 py-sm-10 white--text rounded">
         <v-sparkline
           :value="chartData"
           :labels="labels"
