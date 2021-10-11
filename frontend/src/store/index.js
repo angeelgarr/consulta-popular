@@ -7,7 +7,6 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     address: "",
-    network: "",
     ethereum: null,
     accounts: [],
     account: null,
@@ -20,6 +19,7 @@ export default new Vuex.Store({
       name: "",
       message: "",
     },
+    options: [],
   },
   mutations,
   actions,
