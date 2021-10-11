@@ -12,16 +12,22 @@
       <v-stepper-content step="1">
         <v-card class="mb-4 mb-md-6" height="200px">
           <v-container fluid fill-height class="d-flex justify-center">
-            <v-btn color="primary" v-if="!state.address">
+            <v-btn color="primary" v-if="!state.account" @click="connectWallet">
               Conecta tu monedero
             </v-btn>
             <template v-else>
               <div>
                 <v-card-title class="text-center"
-                  >Address: {{ state.address }}</v-card-title
+                  >Address: {{ state.account }}</v-card-title
                 >
-                <v-card-subtitle class="text-center"
-                  >Network: {{ state.network }}</v-card-subtitle
+
+                <v-card-subtitle
+                  class="text-center"
+                  v-if="state.ethereum.networkVersion === '4'"
+                  >Red Rinkeby</v-card-subtitle
+                >
+                <v-alert v-else type="warning" class="my-2"
+                  >Por favor conecta tu monedero en la red Rinkeby</v-alert
                 >
               </div>
             </template>
@@ -32,7 +38,7 @@
             color="primary"
             @click="step++"
             class="mr-2"
-            :disabled="!state.address"
+            :disabled="!state.account"
           >
             <span class="d-none d-sm-inline mr-2">Siguiente</span>
             <v-icon>
@@ -79,7 +85,7 @@
             color="primary"
             @click="preVote"
             class="mr-2"
-            :disabled="!valid"
+            :disabled="!valid || !clave"
           >
             <span class="d-none d-sm-inline mr-2">Siguiente</span>
             <v-icon>
@@ -101,26 +107,33 @@
 
       <v-stepper-content step="3">
         <v-card class="mb-4 mb-md-6 pt-4 pb-6">
-          <v-card-title
-            >¿Deseas que el presidente continúe en el cargo o que
-            renuncie?</v-card-title
-          >
-          <v-card-subtitle
-            >Selecciona una de las opciones para votar</v-card-subtitle
-          >
-          <div
-            class="d-flex flex-column flex-sm-row justify-sm-space-around my-6"
-          >
-            <v-btn
-              color="accent"
-              class="mb-6 mb-sm-0"
-              v-for="order in randomOrder"
-              :key="`option-${order}`"
-              @click="vote(options[order].id)"
+          <v-progress-circular
+            v-if="state.mining"
+            indeterminate
+            color="primary"
+          ></v-progress-circular>
+          <template v-else>
+            <v-card-title
+              >¿Deseas que el presidente continúe en el cargo o que
+              renuncie?</v-card-title
             >
-              {{ options[order].description }}
-            </v-btn>
-          </div>
+            <v-card-subtitle
+              >Selecciona una de las opciones para votar</v-card-subtitle
+            >
+            <div
+              class="d-flex flex-column flex-sm-row justify-sm-space-around my-6"
+            >
+              <v-btn
+                color="accent"
+                class="mb-6 mb-sm-0"
+                v-for="order in randomOrder"
+                :key="`option-${order}`"
+                @click="voteForOption(options[order].id)"
+              >
+                {{ options[order].description }}
+              </v-btn>
+            </div>
+          </template>
         </v-card>
         <div class="d-flex align-center justify-end">
           <v-btn
@@ -147,7 +160,7 @@
 
 <script>
 import TheAppLayout from "@/components/TheAppLayout.vue";
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions, mapMutations } from "vuex";
 export default {
   name: "Votar",
   data() {
@@ -187,13 +200,21 @@ export default {
     ...mapGetters({ state: "getState" }),
   },
   methods: {
+    ...mapActions(["connectWallet", "vote"]),
+    ...mapMutations(["clearError"]),
     preVote() {
       // randomize voting option order
       this.randomOrder = this.shuffle(this.randomOrder);
       this.step++;
+      this.clearError();
     },
-    vote(id) {
-      console.log(id);
+    async voteForOption(id) {
+      await this.vote({ key: this.clave, option: id });
+      if (this.state.error.message) {
+        this.step = 1;
+      } else {
+        this.$router.push("resultados");
+      }
     },
     shuffle([...arr]) {
       let m = arr.length;
@@ -203,6 +224,9 @@ export default {
       }
       return arr;
     },
+  },
+  mounted() {
+    this.clearError();
   },
 };
 </script>
