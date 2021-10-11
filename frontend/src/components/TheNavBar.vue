@@ -18,9 +18,9 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn fab small color="accent">
+      <!-- <v-btn fab small color="accent">
         <v-icon>mdi-wallet</v-icon>
-      </v-btn>
+      </v-btn> -->
     </v-app-bar>
 
     <v-navigation-drawer v-model="showDrawer" app color="primary">
