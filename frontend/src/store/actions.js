@@ -38,13 +38,14 @@ const connectContract = ({ commit, state }) => {
     }
   } catch (e) {
     console.error(e);
+    commit("setState", { field: "error", value: e });
   }
 };
 
 /**
  * Check if we're authorized to access wallet
  */
-const connectWallet = async ({ commit, state }) => {
+const connectWallet = async ({ commit, state, dispatch }) => {
   if (state.ethereum) {
     state.accounts = await state.ethereum.request({
       method: "eth_requestAccounts",
@@ -53,7 +54,7 @@ const connectWallet = async ({ commit, state }) => {
       state.account = state.accounts[0];
       console.log(`Found an authorized account: ${state.account}`);
       if (!state.contract) {
-        //connectContract;
+        await dispatch("connectContract");
       }
     } else {
       console.log("No accounts found");
@@ -63,8 +64,57 @@ const connectWallet = async ({ commit, state }) => {
   }
 };
 
+const disconnectWallet = async ({ state }) => {
+  await state.ethereum.request({
+    method: "wallet_requestPermissions",
+    params: [
+      {
+        eth_accounts: {},
+      },
+    ],
+  });
+  state.accounts = [];
+  state.account = null;
+};
+
+const getVotes = async ({ state, commit }) => {
+  try {
+    const txn = await state.contract.getOpciones();
+    state.options = txn.map((o) => {
+      return { description: o.descripcion, votes: o.votos.toNumber() };
+    });
+  } catch (e) {
+    console.error(e);
+    commit("setState", { field: "error", value: e });
+  }
+};
+
+const vote = async ({ state, commit }, payload) => {
+  try {
+    const txn = await state.contract.votar(payload.key, payload.option);
+    commit("setState", { field: "mining", value: true });
+    console.log("Mining...", txn.hash);
+    await txn.wait();
+    console.log("Mined -- ", txn.hash);
+    commit("setState", { field: "mining", value: false });
+  } catch (e) {
+    commit("setState", { field: "mining", value: false });
+    commit("setState", {
+      field: "error",
+      value: {
+        name: "Transaction error",
+        message: e.data ? e.data.message : e.message,
+      },
+    });
+    console.error(e);
+  }
+};
+
 export default {
   checkWeb3Availability,
   connectContract,
   connectWallet,
+  disconnectWallet,
+  getVotes,
+  vote,
 };
