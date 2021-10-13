@@ -21,7 +21,7 @@ module.exports = {
   networks: {
     rinkeby: {
       url: process.env.URL,
-      accounts: [process.env.WALLET],
+      accounts: [process.env.PRIVATE_KEY],
     },
   },
 };
