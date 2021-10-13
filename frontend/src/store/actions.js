@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import consulta from "./../../../artifacts/contracts/Consulta.sol/Consulta.json";
+import consulta from "@/assets/Consulta.json";
 
 /*
  * Make sure we have access to window.ethereum
