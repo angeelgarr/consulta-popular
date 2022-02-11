@@ -1,7 +1,7 @@
 <template>
   <the-app-layout
     title="Vota aquí"
-    subtitle="Vota en tres pasos: conecta tu monedero, ingresa tu clave y selecciona la opción por la que deseas votar"
+    subtitle="Proceso de votación: conecta tu monedero, ingresa tu clave y selecciona la opción por la que deseas votar."
   >
     <v-stepper v-model="step" vertical color="warning">
       <v-stepper-step :complete="step > 1" step="1">
@@ -38,12 +38,10 @@
             color="primary"
             @click="step++"
             class="mr-2"
-            :disabled="!state.account"
+            :disabled="disableNext"
           >
             <span class="d-none d-sm-inline mr-2">Siguiente</span>
-            <v-icon>
-              mdi-chevron-right
-            </v-icon>
+            <v-icon> mdi-chevron-right </v-icon>
           </v-btn>
         </div>
       </v-stepper-content>
@@ -76,9 +74,7 @@
             @click="step--"
             class="mr-2 dflex align-center"
           >
-            <v-icon>
-              mdi-chevron-left
-            </v-icon>
+            <v-icon> mdi-chevron-left </v-icon>
             <span class="d-none d-sm-inline ml-2">Anterior</span>
           </v-btn>
           <v-btn
@@ -88,30 +84,32 @@
             :disabled="!valid || !clave"
           >
             <span class="d-none d-sm-inline mr-2">Siguiente</span>
-            <v-icon>
-              mdi-chevron-right
-            </v-icon>
+            <v-icon> mdi-chevron-right </v-icon>
           </v-btn>
           <v-btn text @click="step = 1">
             <span class="d-none d-sm-inline">Cancelar</span>
-            <v-icon class="d-inline d-sm-none">
-              mdi-close
-            </v-icon>
+            <v-icon class="d-inline d-sm-none"> mdi-close </v-icon>
           </v-btn>
         </div>
       </v-stepper-content>
 
-      <v-stepper-step :complete="step > 3" step="3">
-        Vota
-      </v-stepper-step>
-
+      <v-stepper-step :complete="step > 3" step="3"> Vota </v-stepper-step>
       <v-stepper-content step="3">
         <v-card class="mb-4 mb-md-6 pt-4 pb-6">
-          <v-progress-circular
+          <v-container
             v-if="state.mining"
-            indeterminate
-            color="primary"
-          ></v-progress-circular>
+            fluid
+            fill-height
+            class="d-flex justify-center"
+          >
+            <v-card-text class="text-center">
+              <v-progress-circular
+                indeterminate
+                color="primary"
+              ></v-progress-circular>
+              <p class="ml-2 mt-2">Por favor espera, registrando tu voto...</p>
+            </v-card-text>
+          </v-container>
           <template v-else>
             <v-card-title
               >¿Deseas que el presidente continúe en el cargo o que
@@ -121,7 +119,12 @@
               >Selecciona una de las opciones para votar</v-card-subtitle
             >
             <div
-              class="d-flex flex-column flex-sm-row justify-sm-space-around my-6"
+              class="
+                d-flex
+                flex-column flex-sm-row
+                justify-sm-space-around
+                my-6
+              "
             >
               <v-btn
                 color="accent"
@@ -140,19 +143,36 @@
             color="primary"
             @click="step--"
             class="mr-2 dflex align-center"
+            :disabled="state.mining"
           >
-            <v-icon>
-              mdi-chevron-left
-            </v-icon>
+            <v-icon> mdi-chevron-left </v-icon>
             <span class="d-none d-sm-inline ml-2">Anterior</span>
           </v-btn>
-          <v-btn text @click="step = 1">
+          <v-btn text @click="step = 1" :disabled="state.mining">
             <span class="d-none d-sm-inline">Cancelar</span>
-            <v-icon class="d-inline d-sm-none">
-              mdi-close
-            </v-icon>
+            <v-icon class="d-inline d-sm-none"> mdi-close </v-icon>
           </v-btn>
         </div>
+      </v-stepper-content>
+
+      <v-stepper-step :complete="step > 4" step="4">
+        Voto Registrado
+      </v-stepper-step>
+      <v-stepper-content step="4">
+        <v-container
+          fluid
+          fill-height
+          class="d-flex justify-center mb-4 mb-md-6"
+        >
+          <v-card-text class="text-center">
+            <v-icon class="display-4"> mdi-check </v-icon>
+            <h1 class="display-1">¡Voto registrado!</h1>
+            <p>
+              Tu voto ha sido registrado exitosamente. En breve serás redirigido
+              a la página de resultados.
+            </p>
+          </v-card-text>
+        </v-container>
       </v-stepper-content>
     </v-stepper>
   </the-app-layout>
@@ -198,6 +218,11 @@ export default {
   },
   computed: {
     ...mapGetters({ state: "getState" }),
+    disableNext() {
+      if (!this.state.account) return true;
+      if (process.env.NODE_ENV === "development") return false;
+      return this.state.ethereum.networkVersion !== "4";
+    },
   },
   methods: {
     ...mapActions(["connectWallet", "vote"]),
@@ -213,7 +238,7 @@ export default {
       if (this.state.error.message) {
         this.step = 1;
       } else {
-        this.$router.push("resultados");
+        this.step = 4;
       }
     },
     shuffle([...arr]) {
@@ -227,6 +252,15 @@ export default {
   },
   mounted() {
     this.clearError();
+  },
+  watch: {
+    step(val) {
+      if (val === 4) {
+        setTimeout(() => {
+          this.$router.push("/resultados");
+        }, 3000);
+      }
+    },
   },
 };
 </script>
