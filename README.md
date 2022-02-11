@@ -34,38 +34,38 @@ Obviamente no cuento con una base de datos de las claves de elector, por lo que 
 
 ## Frontend
 
-En proceso.
+App en Vue (vuex, router, vuetify) con ethers.js para interactuar con el contrato.
 
 ## Setup
 
-Clonar el repositorio y corrern `npm install` o `yarn` en la carpeta donde fue clonado.
+Clonar el repositorio y corrern `npm install` o `yarn` en la carpeta donde fue clonado. Para el frontend, correr los mismos comandos dentro de la carpeta `./frontend`
 
 ## Comandos de Hardhat
 
 Desplegar contrato localmente:
-Iniciar un nodo local
 
-```shell
-npx hardhat node
-```
+1. Iniciar un nodo local. En una terminal, correr:
 
-```shell
-npx hardhat run --network localhost scripts/deploy.js
-```
+   ```shell
+   npx hardhat node
+   ```
 
-Desplegar contrato en la red Rinkeby
+   Esto nos entrega 10 cuentas con 10000 ETH para pruebas. Para agregar las cuentas a MetaMask, hay que abrir el Metamask, en el menu de selección de redes, seleccionar _Add Network_. En el nombre de la red, se puede colocar cualquier cosa, por ejemplo, `hardhat local`. En RPC URL, copiar la dirección del nodo de hardhat (normalmente es `http://127.0.0.1:8545/`). En Chain ID, colocar `31337`, si el id llega a ser incorrecto, aparece un mensaje con el id de la red, colocar el que aparece. Dar clic en aceptar.
+
+   Ahora, dar click en el perfil (menu My Accounts) y seleccionar Import Account. En Select Type, poner Private key, y finalmente, pegar una de las claves privadas de las cuentas de hardhat. Click en Import.
+
+2. Desplegar el contrato localmente. En otra terminal, correr:
+
+   ```shell
+   npx hardhat run --network localhost scripts/deploy.js
+   ```
+
+   Copiar la dirección local del contrato y ponerla en el archivo `./frontend/env.development`
+
+### Desplegar contrato en la red Rinkeby
 
 ```shell
 npx hardhat run --network rinkeby scripts/deploy.js
-```
-
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-npx hardhat help
 ```
 
 ## Contribuciones
